@@ -1,27 +1,68 @@
-# SampleProject
+# MFE Library Consumer (MFE-library-connected)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
+An Angular 14 application that consumes the shared component library from **[MFE-library](https://github.com/rajkumar30598/MFE-library)** via a local package install.
 
-## Development server
+![Angular](https://img.shields.io/badge/Angular-14-DD0031?logo=angular&logoColor=white)
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## What it demonstrates
 
-## Code scaffolding
+- Installing a locally built Angular library as an npm dependency with a relative path:
+  ```json
+  "angularlibrary": "../sample-library/dist/sample"
+  ```
+  npm links this into `node_modules/angularlibrary`.
+- Importing the library's `SampleModule` into `AppModule` (`import { SampleModule } from 'angularlibrary'`)
+- Rendering the library component `<lib-sample>` from `AppComponent`'s template
+- `preserveSymlinks: true` in `angular.json` so the Angular build resolves the symlinked package correctly
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## How the two repos connect
 
-## Build
+```
+MFE-library                                  MFE-library-connected (this repo)
+  projects/sample  --ng build sample-->  dist/sample
+                                             ^
+                                             |  package.json: "angularlibrary": "../sample-library/dist/sample"
+                                             |
+                                         AppModule -> SampleModule -> <lib-sample>
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Tech stack
 
-## Running unit tests
+| Package | Version |
+| --- | --- |
+| Angular | ^14.1.0 |
+| RxJS | ~7.5.0 |
+| TypeScript | ~4.7.2 |
+| Karma + Jasmine (tests) | 6.4 / 4.x |
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Getting started
 
-## Running end-to-end tests
+Both repositories need to sit side by side, with the library cloned into a folder named `sample-library` (that is the path the dependency points to).
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```bash
+mkdir mfe-demo && cd mfe-demo
 
-## Further help
+# 1. Build the library
+git clone https://github.com/rajkumar30598/MFE-library.git sample-library
+cd sample-library
+npm install
+npx ng build sample
+cd ..
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+# 2. Install and run the consumer app
+git clone https://github.com/rajkumar30598/MFE-library-connected.git
+cd MFE-library-connected
+npm install          # links ../sample-library/dist/sample as "angularlibrary"
+npm start            # ng serve -> http://localhost:4200
+```
+
+The page should render the library's `<lib-sample>` component ("sample works!").
+
+To pick up library changes without reinstalling, run `npx ng build sample --watch` in the library folder while `npm start` runs here.
+
+Other scripts:
+
+```bash
+npm run build        # production build to dist/sample-project
+npm test             # unit tests with Karma
+```
